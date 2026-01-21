@@ -2,7 +2,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
-        TaskManager taskManager = new TaskManager();
+        InMemoryTaskManager taskManager = new InMemoryTaskManager();
 
         Task firstTask = new Task("Домашка", "Надо решить 5 примеров по математике");
         Task secondTask = new Task("Уборка", "Надо помыть полы в двух комнатах и на кухне");
