@@ -1,10 +1,17 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private ArrayList<Task> history;
+    private Map<Integer, Node<Task>> nodeByTaskId;
+    public Node<Task> head;
+    public Node<Task> tail;
+
+    private static final int HISTORY_LIMIT = 10;
 
     public InMemoryHistoryManager() {
-        history = new ArrayList<>();
+        nodeByTaskId = new HashMap<>();
     }
 
     @Override
@@ -13,20 +20,74 @@ public class InMemoryHistoryManager implements HistoryManager {
             return;
         }
 
-        if (history.contains(task)) {
-            history.remove(task);
+        int taskId = task.getTaskId();
+
+        if (nodeByTaskId.containsKey(taskId)) {
+            remove(taskId);
         }
 
-        if (history.size() == 10) {
-            history.removeFirst();
-        }
+        linkLast(task);
 
-        history.add(task);
+        if (nodeByTaskId.size() == HISTORY_LIMIT) {
+            remove(head.data.getTaskId());
+        }
     }
 
+    @Override
+    public void remove(int id) {
+        Node<Task> taskNode = nodeByTaskId.remove(id);
+        if (taskNode != null) {
+            removeNode(taskNode);
+        }
+    }
 
     @Override
     public ArrayList<Task> getHistory() {
-        return history;
+        return getTasks();
+    }
+
+    private void linkLast (Task task) {
+        Node<Task> newNode = new Node<>(task);
+
+        if (head == null) {
+           tail = newNode;
+           head = newNode;
+        } else {
+            tail.next = newNode;
+            newNode.prev = tail;
+            tail = newNode;
+        }
+
+        nodeByTaskId.put(task.getTaskId(), newNode);
+    }
+
+    private ArrayList<Task> getTasks() {
+        ArrayList<Task> tasksArray = new ArrayList<>();
+        Node<Task> current = head;
+        while (current != null) {
+            tasksArray.add(current.data);
+            current = current.next;
+        }
+        return tasksArray;
+    }
+
+    private void removeNode(Node<Task> node) {
+        if (node == null) {
+            return;
+        }
+
+        if (node.prev != null) {
+            node.prev.next = node.next;
+        } else {
+            head = node.next;
+        }
+
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        } else {
+            tail = node.prev;
+        }
+
+        node.data = null;
     }
 }
