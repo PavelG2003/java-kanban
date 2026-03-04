@@ -8,7 +8,7 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, SubTask> subTasks;
     private Managers managers;
 
-    public InMemoryTaskManager () {
+    public InMemoryTaskManager() {
         defaultTasks = new HashMap<>();
         epicTasks = new HashMap<>();
         subTasks = new HashMap<>();
