@@ -7,8 +7,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     public Node<Task> head;
     public Node<Task> tail;
 
-    private static final int HISTORY_LIMIT = 10;
-
     public InMemoryHistoryManager() {
         nodeByTaskId = new HashMap<>();
     }
@@ -26,10 +24,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         linkLast(task);
-
-        if (nodeByTaskId.size() == HISTORY_LIMIT) {
-            remove(head.data.getTaskId());
-        }
     }
 
     @Override
@@ -49,14 +43,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         Node<Task> newNode = new Node<>(task);
 
         if (head == null) {
-           tail = newNode;
            head = newNode;
         } else {
             tail.next = newNode;
             newNode.prev = tail;
-            tail = newNode;
         }
-
+        tail = newNode;
         nodeByTaskId.put(task.getTaskId(), newNode);
     }
 
@@ -86,7 +78,5 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             tail = node.prev;
         }
-
-        node.data = null;
     }
 }
