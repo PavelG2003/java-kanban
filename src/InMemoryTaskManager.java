@@ -55,17 +55,38 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllDefaultTasks() {
+      for (int id : defaultTasks.keySet()) {
+          historyManager.remove(id);
+      }
         defaultTasks.clear();
     }
 
     @Override
     public void removeAllEpicTasks() {
+      for (Epic epic : epicTasks.values()) {
+          int epicId = epic.getTaskId();
+          ArrayList<Integer> subTasksIds = epic.getSubTaskIds();
+          if (!subTasksIds.isEmpty()) {
+              for (int id : subTasksIds) {
+                  historyManager.remove(id);
+                  subTasks.remove(id);
+              }
+          }
+          historyManager.remove(epicId);
+      }
         epicTasks.clear();
     }
 
     @Override
     public void removeAllSubTasks() {
-        subTasks.clear();
+       for (int id : subTasks.keySet()) {
+           historyManager.remove(id);
+       }
+       for (Epic epic : epicTasks.values()) {
+           epic.clearSubTasks();
+           epic.setTaskStatus(TaskStatus.NEW);
+       }
+       subTasks.clear();
     }
 
     @Override
@@ -89,16 +110,24 @@ public class InMemoryTaskManager implements TaskManager {
         return subTask;
     }
 
-
-
     @Override
     public void removeDefaultTaskById(int id) {
         defaultTasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
     public void removeEpicTaskById(int id) {
+        Epic epic = epicTasks.get(id);
+        ArrayList<Integer> subTasksIds = epic.getSubTaskIds();
+        if (!subTasksIds.isEmpty()) {
+            for (int subTaskId : subTasksIds) {
+                subTasks.remove(subTaskId);
+                historyManager.remove(subTaskId);
+            }
+        }
         epicTasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -110,8 +139,9 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epicTasks.get(epicId);
         if (epic != null) {
             epic.removeSubTask(id);
+            updateEpicTaskStatus(epic);
         }
-
+        historyManager.remove(id);
     }
 
     @Override

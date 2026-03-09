@@ -148,19 +148,6 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void shouldNotDuplicateTaskInHistory() {
-        Task task = new Task("Task", "Desc");
-        taskManager.createDefaultTask(task);
-
-        taskManager.getDefaultTaskById(task.getTaskId());
-        taskManager.getDefaultTaskById(task.getTaskId());
-        taskManager.getDefaultTaskById(task.getTaskId());
-
-        ArrayList<Task> history = taskManager.historyManager.getHistory();
-        assertEquals(1, history.size());
-    }
-
-    @Test
     void shouldMoveTaskToEndWhenViewedAgain() {
         Task task1 = new Task("Task1", "Desc");
         Task task2 = new Task("Task2", "Desc");
@@ -195,6 +182,71 @@ class InMemoryTaskManagerTest {
         assertEquals(2, history.size());
         assertEquals(task, history.get(0));
         assertEquals(epic, history.get(1));
+    }
+
+    @Test
+    void shouldRemoveAllEpicsAndTheirSubTasks() {
+        Epic firstEpic = new Epic("Epic1", "Desc1");
+        taskManager.createEpicTask(firstEpic);
+        int firstEpicId = firstEpic.getTaskId();
+
+        SubTask firstEpicSub = new SubTask("Sub1.1", "Desc1.1", firstEpicId);
+        SubTask secondEpicSub = new SubTask("Sub1.2", "Desc1.2", firstEpicId);
+        taskManager.createSubTask(firstEpicSub);
+        taskManager.createSubTask(secondEpicSub);
+
+        Epic secondEpic = new Epic("Epic2", "Desc2");
+        taskManager.createEpicTask(secondEpic);
+        int secondEpicId = secondEpic.getTaskId();
+
+        SubTask sub3 = new SubTask("Sub2.1", "Desc2.1", secondEpicId);
+        taskManager.createSubTask(sub3);
+
+        taskManager.removeAllEpicTasks();
+
+        assertEquals(0, taskManager.getSubTasks().size());
+    }
+
+    @Test
+    void shouldRemoveAllSubtasksAndUpdateEpics() {
+        Epic firstEpic = new Epic("Epic1", "Desc1");
+        taskManager.createEpicTask(firstEpic);
+        int firstEpicId = firstEpic.getTaskId();
+
+        SubTask firstEpicSub = new SubTask("Sub1.1", "Desc1.1", firstEpicId);
+        SubTask secondEpicSub = new SubTask("Sub1.2", "Desc1.2", firstEpicId);
+        taskManager.createSubTask(firstEpicSub);
+        taskManager.createSubTask(secondEpicSub);
+
+        Epic secondEpic = new Epic("Epic2", "Desc2");
+        taskManager.createEpicTask(secondEpic);
+        int secondEpicId = secondEpic.getTaskId();
+
+        SubTask sub3 = new SubTask("Sub2.1", "Desc2.1", secondEpicId);
+        taskManager.createSubTask(sub3);
+
+        taskManager.removeAllSubTasks();
+
+        assertEquals(0, taskManager.getSubTasks().size());
+        assertEquals(TaskStatus.NEW, firstEpic.taskStatus);
+        assertEquals(TaskStatus.NEW, secondEpic.taskStatus);
+    }
+
+    @Test
+    void shouldRemoveEpicTaskByIdAndEpicSubtasks() {
+        Epic firstEpic = new Epic("Epic1", "Desc1");
+        taskManager.createEpicTask(firstEpic);
+        int firstEpicId = firstEpic.getTaskId();
+
+        SubTask firstEpicSub = new SubTask("Sub1.1", "Desc1.1", firstEpicId);
+        SubTask secondEpicSub = new SubTask("Sub1.2", "Desc1.2", firstEpicId);
+        taskManager.createSubTask(firstEpicSub);
+        taskManager.createSubTask(secondEpicSub);
+
+        taskManager.removeEpicTaskById(firstEpicId);
+
+        assertEquals(0, taskManager.getEpicTasks().size());
+        assertEquals(0, taskManager.getSubTasks().size());
     }
 
 

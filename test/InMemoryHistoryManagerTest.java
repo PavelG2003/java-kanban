@@ -1,12 +1,14 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
     private InMemoryHistoryManager historyManager;
+    private InMemoryTaskManager taskManager;
     private Task task1;
     private Task task2;
     private Task task3;
@@ -14,6 +16,7 @@ class InMemoryHistoryManagerTest {
     @BeforeEach
     void setUp() {
         historyManager = new InMemoryHistoryManager();
+        taskManager = new InMemoryTaskManager();
         task1 = new Task("Task 1", "Description 1");
         task1.setTaskId(1);
         task2 = new Task("Task 2", "Description 2");
@@ -131,5 +134,67 @@ class InMemoryHistoryManagerTest {
         assertEquals(2, history.size());
         assertEquals(task3, history.get(0));
         assertEquals(task2, history.get(1));
+    }
+
+    @Test
+    void shouldReturnEmptyHistoryWhenRemoveEpicsWithSubTasks() {
+        Epic firstEpic = new Epic("Epic1", "Desc1");
+        taskManager.createEpicTask(firstEpic);
+        int firstEpicId = firstEpic.getTaskId();
+
+        SubTask firstEpicSub = new SubTask("Sub1.1", "Desc1.1", firstEpicId);
+        SubTask secondEpicSub = new SubTask("Sub1.2", "Desc1.2", firstEpicId);
+        taskManager.createSubTask(firstEpicSub);
+        taskManager.createSubTask(secondEpicSub);
+
+        taskManager.getEpicTaskById(firstEpicId);
+        taskManager.getSubTaskById(firstEpicSub.getTaskId());
+        taskManager.getSubTaskById(secondEpicSub.getTaskId());
+
+        Epic secondEpic = new Epic("Epic2", "Desc2");
+        taskManager.createEpicTask(secondEpic);
+        int secondEpicId = secondEpic.getTaskId();
+
+        SubTask sub3 = new SubTask("Sub2.1", "Desc2.1", secondEpicId);
+        taskManager.createSubTask(sub3);
+
+        taskManager.getEpicTaskById(secondEpicId);
+        taskManager.getSubTaskById(sub3.getTaskId());
+
+        taskManager.removeAllEpicTasks();
+
+        ArrayList<Task> history = taskManager.historyManager.getHistory();
+
+        assertEquals(0, history.size());
+    }
+
+    @Test
+    void shouldNotDuplicateTaskInHistory() {
+        taskManager.createDefaultTask(task1);
+
+        taskManager.getDefaultTaskById(task1.getTaskId());
+        taskManager.getDefaultTaskById(task1.getTaskId());
+        taskManager.getDefaultTaskById(task1.getTaskId());
+
+        ArrayList<Task> history = taskManager.historyManager.getHistory();
+        assertEquals(1, history.size());
+    }
+
+    @Test
+    void shouldRemoveEpicSubTasksFromHistoryWhenEpicRemove() {
+        Epic firstEpic = new Epic("Epic1", "Desc1");
+        taskManager.createEpicTask(firstEpic);
+        int firstEpicId = firstEpic.getTaskId();
+        taskManager.getEpicTaskById(firstEpicId);
+
+        SubTask firstEpicSub = new SubTask("Sub1.1", "Desc1.1", firstEpicId);
+        SubTask secondEpicSub = new SubTask("Sub1.2", "Desc1.2", firstEpicId);
+        taskManager.createSubTask(firstEpicSub);
+        taskManager.createSubTask(secondEpicSub);
+        taskManager.getSubTaskById(firstEpicSub.getTaskId());
+        taskManager.getSubTaskById(secondEpicSub.getTaskId());
+        taskManager.removeEpicTaskById(firstEpicId);
+
+        assertEquals(0, historyManager.getHistory().size());
     }
 }
