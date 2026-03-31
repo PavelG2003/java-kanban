@@ -59,12 +59,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-
     @Override
     public void createDefaultTask(Task task) {
         super.createDefaultTask(task);
         save();
     }
+
     @Override
     public void createEpicTask(Epic task) {
         super.createEpicTask(task);
