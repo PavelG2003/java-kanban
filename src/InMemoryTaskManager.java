@@ -3,9 +3,9 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
     private int counter = 1;
-    private HashMap<Integer, Task> defaultTasks;
-    private HashMap<Integer, Epic> epicTasks;
-    private HashMap<Integer, SubTask> subTasks;
+    protected HashMap<Integer, Task> defaultTasks;
+    protected HashMap<Integer, Epic> epicTasks;
+    protected HashMap<Integer, SubTask> subTasks;
 
     public InMemoryTaskManager() {
         defaultTasks = new HashMap<>();
