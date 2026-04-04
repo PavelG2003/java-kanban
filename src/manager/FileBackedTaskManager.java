@@ -203,7 +203,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 task.setTaskId(id);
                 task.setTaskStatus(status);
                 return task;
+            default:
+                throw new IllegalArgumentException("Unknown task type: " + type);
         }
-        return null;
+
     }
 }
