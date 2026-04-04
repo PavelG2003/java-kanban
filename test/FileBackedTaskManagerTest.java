@@ -1,9 +1,6 @@
 import manager.FileBackedTaskManager;
 import org.junit.jupiter.api.Test;
-import task.Epic;
-import task.SubTask;
-import task.Task;
-import task.TaskStatus;
+import task.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,6 +71,7 @@ class FileBackedTaskManagerTest {
 
         assertNotNull(task);
         assertEquals(1, task.getTaskId());
+        assertEquals(TaskTypes.TASK, task.getType());
         assertEquals("Task1", task.getTitle());
         assertEquals(TaskStatus.NEW, task.getTaskStatus());
         assertEquals("Desc1", task.getDescription());

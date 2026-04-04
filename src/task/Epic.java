@@ -13,6 +13,10 @@ public class Epic extends Task {
         return subTaskIds;
     }
 
+    public TaskTypes getType() {
+        return TaskTypes.EPIC;
+    }
+
     public void addSubTaskId(int subTaskId) {
         if (subTaskId == this.taskId) {
             return;

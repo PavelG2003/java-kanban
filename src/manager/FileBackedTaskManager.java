@@ -48,12 +48,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             while ((line = reader.readLine()) != null) {
                 Task task = fromString(line);
                 int taskId = task.getTaskId();
-                if (task instanceof SubTask) {
-                    manager.subTasks.put(taskId, (SubTask) task);
-                } else if (task instanceof Epic) {
-                    manager.epicTasks.put(taskId, (Epic) task);
-                } else {
-                    manager.defaultTasks.put(taskId, task);
+                TaskTypes type = task.getType();
+                switch (type) {
+                    case SUBTASK:
+                        manager.subTasks.put(taskId, (SubTask) task);
+                        break;
+                    case EPIC:
+                        manager.epicTasks.put(taskId, (Epic) task);
+                        break;
+                    case TASK:
+                        manager.defaultTasks.put(taskId, task);
+                        break;
                 }
             }
         } catch (IOException exp) {
@@ -136,26 +141,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public String toString(Task task) {
-        if (task instanceof SubTask) {
+        TaskTypes type = task.getType();
+        switch (type) {
+            case SUBTASK:
             return task.getTaskId() + "," +
-                    TaskTypes.SUBTASK + "," +
+                    type + "," +
                     task.getTitle() + "," +
                     task.getTaskStatus() + "," +
                     task.getDescription() + "," +
                     ((SubTask) task).getEpicId();
-        } else if (task instanceof Epic) {
+            case EPIC:
             return task.getTaskId() + "," +
-                    TaskTypes.EPIC + "," +
+                    type + "," +
                     task.getTitle() + "," +
                     task.getTaskStatus() + "," +
                     task.getDescription() + ",";
-        } else {
+            case TASK:
             return task.getTaskId() + "," +
-                    TaskTypes.TASK + "," +
+                    type + "," +
                     task.getTitle() + "," +
                     task.getTaskStatus() + "," +
                     task.getDescription() + ",";
         }
+        return null;
     }
 
     public static Task fromString(String str) {

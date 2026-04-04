@@ -37,6 +37,10 @@ public class Task {
         this.taskStatus = newTaskStatus;
     }
 
+    public TaskTypes getType() {
+        return TaskTypes.TASK;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
