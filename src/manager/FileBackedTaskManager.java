@@ -1,7 +1,11 @@
+package manager;
+
+import task.*;
+
 import java.io.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private File path;
+    private final File path;
 
     public FileBackedTaskManager(File path) {
         this.path = path;

@@ -1,3 +1,6 @@
+package manager;
+
+import task.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,7 +16,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks = new HashMap<>();
     }
 
-    HistoryManager historyManager = Managers.getDefaultHistory();
+    public HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public HashMap<Integer, Task> getDefaultTasks() {
