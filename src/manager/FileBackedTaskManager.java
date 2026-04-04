@@ -44,10 +44,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
+            int maxId = 0;
 
             while ((line = reader.readLine()) != null) {
                 Task task = fromString(line);
                 int taskId = task.getTaskId();
+                if (taskId > maxId) {
+                    maxId = taskId;
+                }
                 TaskTypes type = task.getType();
                 switch (type) {
                     case SUBTASK:
@@ -61,6 +65,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         break;
                 }
             }
+            manager.counter = maxId + 1;
+
+            for (SubTask subTask : manager.getAllSubTasks()) {
+                int epicId = subTask.getEpicId();
+                Epic epic = manager.getEpicTaskById(epicId);
+                epic.addSubTaskId(subTask.getTaskId());
+            }
+
         } catch (IOException exp) {
             throw new ManagerSaveException(exp);
         }

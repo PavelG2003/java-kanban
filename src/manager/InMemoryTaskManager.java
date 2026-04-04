@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int counter = 1;
+    protected int counter = 1;
     protected HashMap<Integer, Task> defaultTasks;
     protected HashMap<Integer, Epic> epicTasks;
     protected HashMap<Integer, SubTask> subTasks;
