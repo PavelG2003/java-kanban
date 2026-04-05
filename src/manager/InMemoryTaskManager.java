@@ -1,11 +1,14 @@
+package manager;
+
+import task.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int counter = 1;
-    private HashMap<Integer, Task> defaultTasks;
-    private HashMap<Integer, Epic> epicTasks;
-    private HashMap<Integer, SubTask> subTasks;
+    protected int counter = 1;
+    protected HashMap<Integer, Task> defaultTasks;
+    protected HashMap<Integer, Epic> epicTasks;
+    protected HashMap<Integer, SubTask> subTasks;
 
     public InMemoryTaskManager() {
         defaultTasks = new HashMap<>();
@@ -13,7 +16,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks = new HashMap<>();
     }
 
-    HistoryManager historyManager = Managers.getDefaultHistory();
+    public HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public HashMap<Integer, Task> getDefaultTasks() {
@@ -55,16 +58,25 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllDefaultTasks() {
+      for (int id : defaultTasks.keySet()) {
+          historyManager.remove(id);
+      }
         defaultTasks.clear();
     }
 
     @Override
     public void removeAllEpicTasks() {
+      for (int id : epicTasks.keySet()) {
+          historyManager.remove(id);
+      }
         epicTasks.clear();
     }
 
     @Override
     public void removeAllSubTasks() {
+       for (int id : subTasks.keySet()) {
+           historyManager.remove(id);
+       }
         subTasks.clear();
     }
 
@@ -89,16 +101,16 @@ public class InMemoryTaskManager implements TaskManager {
         return subTask;
     }
 
-
-
     @Override
     public void removeDefaultTaskById(int id) {
         defaultTasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
     public void removeEpicTaskById(int id) {
         epicTasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -111,7 +123,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) {
             epic.removeSubTask(id);
         }
-
+        historyManager.remove(id);
     }
 
     @Override

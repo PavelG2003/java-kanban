@@ -1,3 +1,4 @@
+package task;
 import java.util.Objects;
 
 public class Task {
@@ -34,6 +35,10 @@ public class Task {
 
     public void setTaskStatus(TaskStatus newTaskStatus) {
         this.taskStatus = newTaskStatus;
+    }
+
+    public TaskTypes getType() {
+        return TaskTypes.TASK;
     }
 
     @Override
