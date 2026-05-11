@@ -1,15 +1,23 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
+import task.SubTask;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
+    Epic epic;
+
+    @BeforeEach
+    void createEpic() {
+        epic = new Epic("Epic title", "Epic description");
+    }
 
     @Test
     void getSubTaskIds() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
         ArrayList<Integer> subTaskIds = epic.getSubTaskIds();
 
@@ -19,7 +27,6 @@ class EpicTest {
 
     @Test
     void addSubTaskId() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
         epic.addSubTaskId(1);
         epic.addSubTaskId(2);
@@ -33,7 +40,6 @@ class EpicTest {
 
     @Test
     void removeSubTask() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
         epic.addSubTaskId(1);
         epic.addSubTaskId(2);
@@ -49,7 +55,6 @@ class EpicTest {
 
     @Test
     void clearSubTasks() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
         epic.addSubTaskId(1);
         epic.addSubTaskId(2);
@@ -61,31 +66,28 @@ class EpicTest {
 
     @Test
     void epicsAreEqualIfIdsAreEqual() {
-        Epic epic1 = new Epic("Epic 1", "Description 1");
         Epic epic2 = new Epic("Epic 2", "Description 2");
 
-        epic1.setTaskId(10);
+        epic.setTaskId(10);
         epic2.setTaskId(10);
 
-        assertEquals(epic1, epic2, "Эпики должны быть равны при одинаковом id");
-        assertEquals(epic1.hashCode(), epic2.hashCode(),
+        assertEquals(epic, epic2, "Эпики должны быть равны при одинаковом id");
+        assertEquals(epic.hashCode(), epic2.hashCode(),
                 "HashCode должен совпадать у равных эпиков");
     }
 
     @Test
     void epicsAreNotEqualIfIdsAreDifferent() {
-        Epic epic1 = new Epic("Epic", "Description");
         Epic epic2 = new Epic("Epic", "Description");
 
-        epic1.setTaskId(1);
+        epic.setTaskId(1);
         epic2.setTaskId(2);
 
-        assertNotEquals(epic1, epic2, "Эпики с разными id не должны быть равны");
+        assertNotEquals(epic, epic2, "Эпики с разными id не должны быть равны");
     }
 
     @Test
     void epicCannotContainItselfAsSubtask() {
-        Epic epic = new Epic("Epic", "Description");
         epic.setTaskId(1);
 
         epic.addSubTaskId(1);
@@ -93,7 +95,4 @@ class EpicTest {
         assertFalse(epic.getSubTaskIds().contains(epic.getTaskId()),
                 "Epic не должен содержать самого себя в списке подзадач");
     }
-
-
-
 }

@@ -4,14 +4,16 @@ import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+import java.time.LocalDateTime;
+
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
         InMemoryTaskManager taskManager = new InMemoryTaskManager();
 
-        Task firstTask = new Task("Домашка", "Надо решить 5 примеров по математике");
-        Task secondTask = new Task("Уборка", "Надо помыть полы в двух комнатах и на кухне");
+        Task firstTask = new Task("Домашка", "Надо решить 5 примеров по математике", LocalDateTime.now(), 120);
+        Task secondTask = new Task("Уборка", "Надо помыть полы в двух комнатах и на кухне", LocalDateTime.now(), 120);
 
         Epic firstEpic = new Epic("Переезд", "Переезд в новую квартиру");
 
@@ -21,9 +23,9 @@ public class Main {
         taskManager.createEpicTask(firstEpic);
         int firstEpicId = firstEpic.getTaskId();
         SubTask firstEpicSub = new SubTask("Собрать вещи", "Собрать все вещи из старой квартиры и " +
-                "перевезти в новую", firstEpicId);
+                "перевезти в новую", firstEpicId, LocalDateTime.now(), 120);
         SubTask secondEpicSub = new SubTask("Заселиться", "Разложить все вещи в новой квартире",
-                firstEpicId);
+                firstEpicId, LocalDateTime.now(), 120);
 
         taskManager.createSubTask(firstEpicSub);
         taskManager.createSubTask(secondEpicSub);

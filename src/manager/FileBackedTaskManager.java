@@ -3,6 +3,9 @@ package manager;
 import task.*;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File path;
@@ -13,7 +16,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-            writer.write("id,type,name,status,description,epic");
+            writer.write("id,type,name,status,description,epic,startTime,duration");
             writer.newLine();
 
             for (Task task : getAllDefaultTasks()) {
@@ -161,19 +164,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     task.getTitle() + "," +
                     task.getTaskStatus() + "," +
                     task.getDescription() + "," +
-                    ((SubTask) task).getEpicId();
-            case EPIC:
+                    ((SubTask) task).getEpicId() + "," +
+                    task.getStartTime() + "," +
+                    task.getDuration().toMinutes();
+            case EPIC, TASK:
             return task.getTaskId() + "," +
                     type + "," +
                     task.getTitle() + "," +
                     task.getTaskStatus() + "," +
-                    task.getDescription() + ",";
-            case TASK:
-            return task.getTaskId() + "," +
-                    type + "," +
-                    task.getTitle() + "," +
-                    task.getTaskStatus() + "," +
-                    task.getDescription() + ",";
+                    task.getDescription() + "," +
+                    " " + "," +
+                    task.getStartTime() + "," +
+                    task.getDuration().toMinutes();
         }
         return null;
     }
@@ -185,11 +187,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = fields[2];
         TaskStatus status = TaskStatus.valueOf(fields[3]);
         String description = fields[4];
+        LocalDateTime startTime;
+        if (!Objects.equals(fields[6], "null")) {
+            startTime = LocalDateTime.parse(fields[6]);
+        } else {
+            startTime = null;
+        }
+        long duration = Long.parseLong(fields[7]);
 
         switch (type) {
             case SUBTASK:
                 int epicId = Integer.parseInt(fields[5]);
-                SubTask subTask = new SubTask(name, description, epicId);
+                SubTask subTask = new SubTask(name, description, epicId, startTime, duration);
                 subTask.setTaskId(id);
                 subTask.setTaskStatus(status);
                 return subTask;
@@ -197,9 +206,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 Epic epic = new Epic(name, description);
                 epic.setTaskId(id);
                 epic.setTaskStatus(status);
+                epic.setStartTime(startTime);
+                epic.setDuration(duration);
                 return epic;
             case TASK:
-                Task task = new Task(name, description);
+                Task task = new Task(name, description, startTime, duration);
                 task.setTaskId(id);
                 task.setTaskStatus(status);
                 return task;

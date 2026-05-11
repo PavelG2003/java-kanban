@@ -4,6 +4,7 @@ import task.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +15,7 @@ class FileBackedTaskManagerTest {
         File file = File.createTempFile("tasks", ".csv");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        Task defaultTask  = new Task("Task1", "Desc1");
+        Task defaultTask  = new Task("Task1", "Desc1", LocalDateTime.now(), 100);
         manager.createDefaultTask(defaultTask);
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
@@ -28,7 +29,7 @@ class FileBackedTaskManagerTest {
         File file = File.createTempFile("tasks", ".csv");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        Task defaultTask  = new Task("Task1", "Desc1");
+        Task defaultTask  = new Task("Task1", "Desc1", LocalDateTime.now(), 120);
         manager.createDefaultTask(defaultTask);
 
         Epic epic = new Epic("Epic1", "DescEpic1");
@@ -38,7 +39,7 @@ class FileBackedTaskManagerTest {
         manager.createEpicTask(epic2);
         int epic2Id = epic2.getTaskId();
 
-        SubTask subTask = new SubTask("Sub1", "DescSub1", epic2Id);
+        SubTask subTask = new SubTask("Sub1", "DescSub1", epic2Id, LocalDateTime.now(), 120);
         manager.createSubTask(subTask);
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
@@ -54,19 +55,20 @@ class FileBackedTaskManagerTest {
     @Test
     void testToString() {
         FileBackedTaskManager manager = new FileBackedTaskManager(null);
+        LocalDateTime time = LocalDateTime.now();
 
-        Task task = new Task("Task1", "Desc1");
+        Task task = new Task("Task1", "Desc1", time, 100);
         task.setTaskId(1);
         task.setTaskStatus(TaskStatus.NEW);
 
         String taskToString = manager.toString(task);
 
-        assertEquals("1,TASK,Task1,NEW,Desc1,", taskToString);
+        assertEquals("1,TASK,Task1,NEW,Desc1, ," + time + ",100", taskToString);
     }
 
     @Test
     void fromString() {
-        String taskString = "1,TASK,Task1,NEW,Desc1,";
+        String taskString = "1,TASK,Task1,NEW,Desc1, ,2026-05-11T14:25:47.423630200,120";
         Task task = FileBackedTaskManager.fromString(taskString);
 
         assertNotNull(task);

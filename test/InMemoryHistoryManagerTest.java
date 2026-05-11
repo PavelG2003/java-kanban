@@ -3,6 +3,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,11 +17,11 @@ class InMemoryHistoryManagerTest {
     @BeforeEach
     void setUp() {
         historyManager = new InMemoryHistoryManager();
-        task1 = new Task("Task 1", "Description 1");
+        task1 = new Task("Task 1", "Description 1", LocalDateTime.now(), 120);
         task1.setTaskId(1);
-        task2 = new Task("Task 2", "Description 2");
+        task2 = new Task("Task 2", "Description 2", LocalDateTime.now(), 120);
         task2.setTaskId(2);
-        task3 = new Task("Task 3", "Description 3");
+        task3 = new Task("Task 3", "Description 3", LocalDateTime.now(), 120);
         task3.setTaskId(3);
     }
 
