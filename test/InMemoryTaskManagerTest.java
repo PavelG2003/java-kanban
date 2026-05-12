@@ -13,13 +13,18 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     private InMemoryTaskManager taskManager;
 
     @BeforeEach
     void setUp() {
         taskManager = new InMemoryTaskManager();
+    }
+
+    @Override
+    protected InMemoryTaskManager createTaskManager() {
+        return new InMemoryTaskManager();
     }
 
     @Test
@@ -60,7 +65,7 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 120);
+        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 10);
         SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId(), LocalDateTime.now().plusMinutes(20), 150);
 
         taskManager.createSubTask(sub1);
@@ -75,7 +80,7 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 120);
+        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 10);
         SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId(), LocalDateTime.now().plusMinutes(20), 150);
 
 
@@ -97,7 +102,7 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 150);
+        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 10);
         SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId(), LocalDateTime.now().plusMinutes(20), 120);
 
 
@@ -170,7 +175,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldMoveTaskToEndWhenViewedAgain() {
-        Task task1 = new Task("Task1", "Desc", LocalDateTime.now(), 150);
+        Task task1 = new Task("Task1", "Desc", LocalDateTime.now(), 10);
         Task task2 = new Task("Task2", "Desc", LocalDateTime.now().plusMinutes(20), 120);
 
         taskManager.createDefaultTask(task1);

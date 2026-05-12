@@ -1,4 +1,5 @@
 import manager.FileBackedTaskManager;
+import manager.ManagerSaveException;
 import org.junit.jupiter.api.Test;
 import task.*;
 
@@ -8,7 +9,14 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
+
+    @Override
+    protected FileBackedTaskManager createTaskManager() throws IOException {
+        File file = File.createTempFile("tasks", ".csv");
+        file.deleteOnExit();
+        return new FileBackedTaskManager(file);
+    }
 
     @Test
     void save() throws IOException {
@@ -29,7 +37,7 @@ class FileBackedTaskManagerTest {
         File file = File.createTempFile("tasks", ".csv");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        Task defaultTask  = new Task("Task1", "Desc1", LocalDateTime.now(), 120);
+        Task defaultTask  = new Task("Task1", "Desc1", LocalDateTime.of(2026, 6, 13, 12, 5), 120);
         manager.createDefaultTask(defaultTask);
 
         Epic epic = new Epic("Epic1", "DescEpic1");
@@ -77,5 +85,36 @@ class FileBackedTaskManagerTest {
         assertEquals("Task1", task.getTitle());
         assertEquals(TaskStatus.NEW, task.getTaskStatus());
         assertEquals("Desc1", task.getDescription());
+    }
+
+    @Test
+    void shouldNotThrowWhenSavingToAvailableFile() throws IOException {
+        File file = File.createTempFile("tasks", ".csv");
+        file.deleteOnExit();
+        FileBackedTaskManager manager = new FileBackedTaskManager(file);
+
+        assertDoesNotThrow(() -> manager.createDefaultTask(
+                new Task("Task", "Desc", LocalDateTime.of(2026, 1, 1, 9, 0), 30)
+        ));
+    }
+
+    @Test
+    void shouldThrowManagerSaveExceptionWhenSavingToDirectory() throws IOException {
+        File directory = File.createTempFile("tasks-directory", "");
+        assertTrue(directory.delete());
+        assertTrue(directory.mkdir());
+        directory.deleteOnExit();
+        FileBackedTaskManager manager = new FileBackedTaskManager(directory);
+
+        assertThrows(ManagerSaveException.class, () -> manager.createDefaultTask(
+                new Task("Task", "Desc", LocalDateTime.of(2026, 1, 1, 9, 0), 30)
+        ));
+    }
+
+    @Test
+    void shouldThrowManagerSaveExceptionWhenLoadingMissingFile() {
+        File missingFile = new File("missing-file-for-test.csv");
+
+        assertThrows(ManagerSaveException.class, () -> FileBackedTaskManager.loadFromFile(missingFile));
     }
 }

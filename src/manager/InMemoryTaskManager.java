@@ -71,6 +71,7 @@ public class InMemoryTaskManager implements TaskManager {
       for (int id : defaultTasks.keySet()) {
           historyManager.remove(id);
       }
+        prioritizedTasks.removeAll(defaultTasks.values());
         defaultTasks.clear();
     }
 
@@ -79,6 +80,11 @@ public class InMemoryTaskManager implements TaskManager {
       for (int id : epicTasks.keySet()) {
           historyManager.remove(id);
       }
+        for (SubTask subTask : subTasks.values()) {
+            historyManager.remove(subTask.getTaskId());
+        }
+        prioritizedTasks.removeAll(subTasks.values());
+        subTasks.clear();
         epicTasks.clear();
     }
 
@@ -87,7 +93,14 @@ public class InMemoryTaskManager implements TaskManager {
        for (int id : subTasks.keySet()) {
            historyManager.remove(id);
        }
+        prioritizedTasks.removeAll(subTasks.values());
         subTasks.clear();
+        for (Epic epic : epicTasks.values()) {
+            epic.clearSubTasks();
+            updateEpicTaskStatus(epic);
+            updateEpicDuration(epic);
+            updateEpicStartAndEndTime(epic);
+        }
     }
 
     @Override
@@ -113,6 +126,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeDefaultTaskById(int id) {
+        Task task = defaultTasks.get(id);
+        if (task != null) {
+            prioritizedTasks.remove(task);
+        }
         defaultTasks.remove(id);
         historyManager.remove(id);
     }
@@ -121,6 +138,15 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpicTaskById(int id) {
         epicTasks.remove(id);
         historyManager.remove(id);
+        Iterator<SubTask> iterator = subTasks.values().iterator();
+        while (iterator.hasNext()) {
+            SubTask subTask = iterator.next();
+            if (subTask.getEpicId() == id) {
+                prioritizedTasks.remove(subTask);
+                historyManager.remove(subTask.getTaskId());
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -128,10 +154,14 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask subTask = subTasks.remove(id);
         if (subTask == null) return;
 
+        prioritizedTasks.remove(subTask);
         int epicId = subTask.getEpicId();
         Epic epic = epicTasks.get(epicId);
         if (epic != null) {
             epic.removeSubTask(id);
+            updateEpicTaskStatus(epic);
+            updateEpicDuration(epic);
+            updateEpicStartAndEndTime(epic);
         }
         historyManager.remove(id);
     }
