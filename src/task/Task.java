@@ -11,7 +11,7 @@ public class Task {
     protected LocalDateTime startTime;
     protected Duration duration;
 
-    public Task(String title, String description, LocalDateTime startTime, long minutesDuration ) {
+    public Task(String title, String description, LocalDateTime startTime, long minutesDuration) {
         this.title = title;
         this.description = description;
         this.taskStatus = TaskStatus.NEW;
@@ -72,6 +72,7 @@ public class Task {
     public Duration getDuration() {
         return this.duration;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
