@@ -3,7 +3,7 @@ package task;
 import java.time.LocalDateTime;
 
 public class SubTask extends Task {
-    private int epicId;
+    private final int epicId;
 
     public SubTask(String title, String description, int epicId, LocalDateTime localDateTime, long minutesDuration) {
         super(title, description, localDateTime, minutesDuration);
