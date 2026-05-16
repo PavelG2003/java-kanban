@@ -6,11 +6,14 @@ import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     private InMemoryTaskManager taskManager;
 
@@ -19,9 +22,14 @@ class InMemoryTaskManagerTest {
         taskManager = new InMemoryTaskManager();
     }
 
+    @Override
+    protected InMemoryTaskManager createTaskManager() {
+        return new InMemoryTaskManager();
+    }
+
     @Test
     void shouldCreateAndGetDefaultTask() {
-        Task task = new Task("Task 1", "Description");
+        Task task = new Task("Task 1", "Description", LocalDateTime.now(), 120);
 
         taskManager.createDefaultTask(task);
 
@@ -34,7 +42,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldRemoveDefaultTaskById() {
-        Task task = new Task("Task", "Desc");
+        Task task = new Task("Task", "Desc", LocalDateTime.now(), 120);
         taskManager.createDefaultTask(task);
 
         taskManager.removeDefaultTaskById(task.getTaskId());
@@ -57,8 +65,8 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId());
-        SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId());
+        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 10);
+        SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId(), LocalDateTime.now().plusMinutes(20), 150);
 
         taskManager.createSubTask(sub1);
         taskManager.createSubTask(sub2);
@@ -72,8 +80,8 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId());
-        SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId());
+        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 10);
+        SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId(), LocalDateTime.now().plusMinutes(20), 150);
 
 
         taskManager.createSubTask(sub1);
@@ -94,8 +102,8 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId());
-        SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId());
+        SubTask sub1 = new SubTask("Sub1", "Desc", epic.getTaskId(), LocalDateTime.now(), 10);
+        SubTask sub2 = new SubTask("Sub2", "Desc", epic.getTaskId(), LocalDateTime.now().plusMinutes(20), 120);
 
 
         taskManager.createSubTask(sub1);
@@ -113,7 +121,7 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         taskManager.createEpicTask(epic);
 
-        SubTask sub = new SubTask("Sub", "Desc", epic.getTaskId());
+        SubTask sub = new SubTask("Sub", "Desc", epic.getTaskId(), LocalDateTime.now(), 120);
         taskManager.createSubTask(sub);
 
         taskManager.removeSubTaskById(sub.getTaskId());
@@ -134,7 +142,7 @@ class InMemoryTaskManagerTest {
     }
     @Test
     void shouldAddTaskToHistory() {
-        Task task = new Task("Task", "Desc");
+        Task task = new Task("Task", "Desc", LocalDateTime.now(), 120);
         taskManager.createDefaultTask(task);
 
         taskManager.getDefaultTaskById(task.getTaskId());
@@ -154,7 +162,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldNotDuplicateTaskInHistory() {
-        Task task = new Task("Task", "Desc");
+        Task task = new Task("Task", "Desc", LocalDateTime.now(), 120);
         taskManager.createDefaultTask(task);
 
         taskManager.getDefaultTaskById(task.getTaskId());
@@ -167,8 +175,8 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldMoveTaskToEndWhenViewedAgain() {
-        Task task1 = new Task("Task1", "Desc");
-        Task task2 = new Task("Task2", "Desc");
+        Task task1 = new Task("Task1", "Desc", LocalDateTime.now(), 10);
+        Task task2 = new Task("Task2", "Desc", LocalDateTime.now().plusMinutes(20), 120);
 
         taskManager.createDefaultTask(task1);
         taskManager.createDefaultTask(task2);
@@ -186,7 +194,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldStoreDifferentTaskTypesInHistory() {
-        Task task = new Task("Task", "Desc");
+        Task task = new Task("Task", "Desc", LocalDateTime.now(), 120);
         Epic epic = new Epic("Epic", "Desc");
 
         taskManager.createDefaultTask(task);
@@ -202,7 +210,53 @@ class InMemoryTaskManagerTest {
         assertEquals(epic, history.get(1));
     }
 
+    @Test
+    void shouldUpdateTimeAndDurationInEpic() {
+        Epic epic = new Epic("Epic", "Desc");
+        taskManager.createEpicTask(epic);
 
+        SubTask sub1 = new SubTask(
+                "Sub1",
+                "DescSub1",
+                epic.getTaskId(),
+                LocalDateTime.now(),
+                100
+        );
 
+        SubTask sub2 = new SubTask(
+                "Sub2",
+                "DescSub2",
+                epic.getTaskId(),
+                LocalDateTime.of(2026, 10, 13, 10, 30),
+                20
+        );
 
+        taskManager.createSubTask(sub1);
+        taskManager.createSubTask(sub2);
+
+        LocalDateTime ecxpectedEndTime = LocalDateTime.of(2026, 10, 13, 10, 50);
+        Duration expectedDuration = Duration.ofMinutes(120);
+        assertEquals(ecxpectedEndTime, epic.getEndTime());
+        assertEquals(expectedDuration, epic.getDuration());
+    }
+
+    @Test
+    void shouldReturnSortedTasks() {
+        Task task = new Task("Task", "Desc", LocalDateTime.now(), 120);
+        Epic epic = new Epic("Epic", "Desc");
+        SubTask sub = new SubTask(
+                "Sub",
+                "Desc",
+                epic.getTaskId(),
+                LocalDateTime.of(2026, 10, 13, 10, 50),
+                200
+        );
+        taskManager.createDefaultTask(task);
+        taskManager.createEpicTask(epic);
+        taskManager.createSubTask(sub);
+        Set<Task> actualList = taskManager.getPrioritizedTasks();
+        Set<Task> expectedList = Set.of(task, sub);
+
+        assertEquals(expectedList, actualList);
+    }
 }

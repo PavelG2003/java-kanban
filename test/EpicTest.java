@@ -1,15 +1,29 @@
+import manager.InMemoryTaskManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
+import task.SubTask;
+import task.TaskStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
+    Epic epic;
+    InMemoryTaskManager manager;
+
+    @BeforeEach
+    void createEpic() {
+        manager = new InMemoryTaskManager();
+        epic = new Epic("Epic title", "Epic description");
+        manager.createEpicTask(epic);
+
+    }
 
     @Test
     void getSubTaskIds() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
         ArrayList<Integer> subTaskIds = epic.getSubTaskIds();
 
@@ -19,27 +33,24 @@ class EpicTest {
 
     @Test
     void addSubTaskId() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
-        epic.addSubTaskId(1);
-        epic.addSubTaskId(2);
+        epic.addSubTaskId(10);
+        epic.addSubTaskId(24);
 
         ArrayList<Integer> subTaskIds = epic.getSubTaskIds();
 
         assertEquals(2, subTaskIds.size(), "Должно быть добавлено две подзадачи");
-        assertTrue(subTaskIds.contains(1), "Список должен содержать id 1");
-        assertTrue(subTaskIds.contains(2), "Список должен содержать id 2");
+        assertTrue(subTaskIds.contains(10), "Список должен содержать id 1");
+        assertTrue(subTaskIds.contains(24), "Список должен содержать id 2");
     }
 
     @Test
     void removeSubTask() {
-        Epic epic = new Epic("Epic title", "Epic description");
+        epic.addSubTaskId(4);
+        epic.addSubTaskId(5);
+        epic.addSubTaskId(78);
 
-        epic.addSubTaskId(1);
-        epic.addSubTaskId(2);
-        epic.addSubTaskId(3);
-
-        epic.removeSubTask(2);
+        epic.removeSubTask(5);
 
         ArrayList<Integer> subTaskIds = epic.getSubTaskIds();
 
@@ -49,7 +60,6 @@ class EpicTest {
 
     @Test
     void clearSubTasks() {
-        Epic epic = new Epic("Epic title", "Epic description");
 
         epic.addSubTaskId(1);
         epic.addSubTaskId(2);
@@ -61,31 +71,28 @@ class EpicTest {
 
     @Test
     void epicsAreEqualIfIdsAreEqual() {
-        Epic epic1 = new Epic("Epic 1", "Description 1");
         Epic epic2 = new Epic("Epic 2", "Description 2");
 
-        epic1.setTaskId(10);
+        epic.setTaskId(10);
         epic2.setTaskId(10);
 
-        assertEquals(epic1, epic2, "Эпики должны быть равны при одинаковом id");
-        assertEquals(epic1.hashCode(), epic2.hashCode(),
+        assertEquals(epic, epic2, "Эпики должны быть равны при одинаковом id");
+        assertEquals(epic.hashCode(), epic2.hashCode(),
                 "HashCode должен совпадать у равных эпиков");
     }
 
     @Test
     void epicsAreNotEqualIfIdsAreDifferent() {
-        Epic epic1 = new Epic("Epic", "Description");
         Epic epic2 = new Epic("Epic", "Description");
 
-        epic1.setTaskId(1);
+        epic.setTaskId(1);
         epic2.setTaskId(2);
 
-        assertNotEquals(epic1, epic2, "Эпики с разными id не должны быть равны");
+        assertNotEquals(epic, epic2, "Эпики с разными id не должны быть равны");
     }
 
     @Test
     void epicCannotContainItselfAsSubtask() {
-        Epic epic = new Epic("Epic", "Description");
         epic.setTaskId(1);
 
         epic.addSubTaskId(1);
@@ -94,6 +101,116 @@ class EpicTest {
                 "Epic не должен содержать самого себя в списке подзадач");
     }
 
+    @Test
+    void calculatingEpicStatusForAllSubsNew() {
+        SubTask sub1 = new SubTask(
+                "Sub1",
+                "DescSub1",
+                epic.getTaskId(),
+                LocalDateTime.now(),
+                100
+        );
+
+        SubTask sub2 = new SubTask(
+                "Sub2",
+                "DescSub2",
+                epic.getTaskId(),
+                LocalDateTime.of(2026, 10, 13, 10, 30),
+                20
+        );
+
+        manager.createSubTask(sub1);
+        manager.createSubTask(sub2);
+        assertEquals(TaskStatus.NEW, epic.getTaskStatus());
+    }
+
+    @Test
+    void calculatingEpicStatusForAllSubsDone() {
+        SubTask sub1 = new SubTask(
+                "Sub1",
+                "DescSub1",
+                epic.getTaskId(),
+                LocalDateTime.now(),
+                100
+        );
+
+        SubTask sub2 = new SubTask(
+                "Sub2",
+                "DescSub2",
+                epic.getTaskId(),
+                LocalDateTime.of(2026, 10, 13, 10, 30),
+                20
+        );
+
+        manager.createSubTask(sub1);
+        manager.createSubTask(sub2);
+
+        sub1.setTaskStatus(TaskStatus.DONE);
+        sub2.setTaskStatus(TaskStatus.DONE);
+
+        manager.updateSubTask(sub1);
+        manager.updateSubTask(sub2);
+
+        assertEquals(TaskStatus.DONE, epic.getTaskStatus());
+    }
+
+    @Test
+    void calculatingEpicStatusForSubsNewAndDone() {
+        SubTask sub1 = new SubTask(
+                "Sub1",
+                "DescSub1",
+                epic.getTaskId(),
+                LocalDateTime.now(),
+                100
+        );
+
+        SubTask sub2 = new SubTask(
+                "Sub2",
+                "DescSub2",
+                epic.getTaskId(),
+                LocalDateTime.of(2026, 10, 13, 10, 30),
+                20
+        );
+
+        manager.createSubTask(sub1);
+        manager.createSubTask(sub2);
+
+        sub1.setTaskStatus(TaskStatus.DONE);
+
+        manager.updateSubTask(sub1);
+
+        assertEquals(TaskStatus.IN_PROGRESS, epic.getTaskStatus());
+    }
+
+    @Test
+    void calculatingEpicStatusForSubsInProgress() {
+        SubTask sub1 = new SubTask(
+                "Sub1",
+                "DescSub1",
+                epic.getTaskId(),
+                LocalDateTime.now(),
+                100
+        );
+
+        SubTask sub2 = new SubTask(
+                "Sub2",
+                "DescSub2",
+                epic.getTaskId(),
+                LocalDateTime.of(2026, 10, 13, 10, 30),
+                20
+        );
+
+        manager.createSubTask(sub1);
+        manager.createSubTask(sub2);
+
+        sub1.setTaskStatus(TaskStatus.IN_PROGRESS);
+        sub2.setTaskStatus(TaskStatus.IN_PROGRESS);
+
+        manager.updateSubTask(sub1);
+        manager.updateSubTask(sub2);
+
+        assertEquals(TaskStatus.IN_PROGRESS, epic.getTaskStatus());
+    }
 
 
 }

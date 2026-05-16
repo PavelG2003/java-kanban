@@ -5,6 +5,8 @@ import task.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 public interface TaskManager {
     HashMap<Integer, Task> getDefaultTasks();
@@ -54,4 +56,16 @@ public interface TaskManager {
     ArrayList<SubTask> getAllSubTasksFromEpic(int epicId);
 
     void updateEpicTaskStatus(Epic epic);
+
+    void updateEpicDuration(Epic epic);
+
+    void updateEpicStartAndEndTime(Epic epic);
+
+    List<SubTask> getEpicSubTasks(Epic epic);
+
+    Set<Task> getPrioritizedTasks();
+
+    boolean isTasksOverlap(Task t1, Task t2);
+
+    boolean isTaskOverlaps(Task task);
 }

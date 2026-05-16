@@ -1,4 +1,6 @@
 package task;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -6,8 +8,18 @@ public class Task {
     protected String description;
     protected int taskId;
     protected TaskStatus taskStatus;
+    protected LocalDateTime startTime;
+    protected Duration duration;
 
-    public Task(String title, String description) {
+    public Task(String title, String description, LocalDateTime startTime, long minutesDuration) {
+        this.title = title;
+        this.description = description;
+        this.taskStatus = TaskStatus.NEW;
+        this.startTime = startTime;
+        this.duration = Duration.ofMinutes(minutesDuration);
+    }
+
+    protected Task(String title, String description) {
         this.title = title;
         this.description = description;
         this.taskStatus = TaskStatus.NEW;
@@ -39,6 +51,29 @@ public class Task {
 
     public TaskTypes getType() {
         return TaskTypes.TASK;
+    }
+
+    public LocalDateTime getEndTime() {
+        if ((startTime != null) && (duration != null)) {
+            return startTime.plus(duration);
+        }
+        return null;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(long minutesDuration) {
+        this.duration = Duration.ofMinutes(minutesDuration);
+    }
+
+    public Duration getDuration() {
+        return this.duration;
     }
 
     @Override
