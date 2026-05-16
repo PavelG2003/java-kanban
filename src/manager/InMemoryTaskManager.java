@@ -219,7 +219,9 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(oldTask);
         }
         defaultTasks.put(task.getTaskId(), task);
-        prioritizedTasks.add(task);
+        if (task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
     }
 
     @Override
@@ -241,7 +243,9 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(oldTask);
         }
         subTasks.put(task.getTaskId(), task);
-        prioritizedTasks.add(task);
+        if (task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
 
         int epicId = task.getEpicId();
         Epic epic = epicTasks.get(epicId);
