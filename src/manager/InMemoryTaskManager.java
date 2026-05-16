@@ -207,6 +207,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateDefaultTask(Task task) {
+        if (task == null) {
+            throw new IllegalArgumentException("Задача не может быть null");
+        }
         if (isTaskOverlaps(task)) {
             throw new IllegalArgumentException("Задачи пересекаются");
         }
@@ -226,6 +229,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask task) {
+        if (task == null) {
+            throw new IllegalArgumentException("Задача не может быть null");
+        }
         if (isTaskOverlaps(task)) {
             throw new IllegalArgumentException("Задачи пересекаются");
         }
