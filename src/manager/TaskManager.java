@@ -68,4 +68,6 @@ public interface TaskManager {
     boolean isTasksOverlap(Task t1, Task t2);
 
     boolean isTaskOverlaps(Task task);
+
+    HistoryManager getHistoryManager();
 }

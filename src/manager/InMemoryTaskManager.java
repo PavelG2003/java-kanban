@@ -21,7 +21,6 @@ public class InMemoryTaskManager implements TaskManager {
     };
     protected final Set<Task> prioritizedTasks = new TreeSet<>(taskComparator);
 
-
     public InMemoryTaskManager() {
         defaultTasks = new HashMap<>();
         epicTasks = new HashMap<>();
@@ -105,6 +104,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getDefaultTaskById(int id) {
         Task task = defaultTasks.get(id);
+        if (task == null) {
+            throw new NotFoundException("Задача не найдена");
+        }
         historyManager.add(task);
         return task;
     }
@@ -112,6 +114,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpicTaskById(int id) {
         Epic epic = epicTasks.get(id);
+        if (epic == null) {
+            throw new NotFoundException("Эпик не найден");
+        }
         historyManager.add(epic);
         return epic;
     }
@@ -119,6 +124,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask getSubTaskById(int id) {
         SubTask subTask = subTasks.get(id);
+        if (subTask == null) {
+            throw new NotFoundException("Подзадача не найдена");
+        }
         historyManager.add(subTask);
         return subTask;
     }
@@ -357,5 +365,10 @@ public class InMemoryTaskManager implements TaskManager {
         return prioritizedTasks.stream()
                 .filter(curTask -> curTask.getTaskId() != task.getTaskId())
                 .anyMatch(curTask -> isTasksOverlap(curTask, task));
+    }
+
+    @Override
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 }
