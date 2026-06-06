@@ -1,4 +1,5 @@
 import manager.InMemoryTaskManager;
+import manager.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
@@ -154,7 +155,9 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @Test
     void shouldNotAddNullToHistory() {
-        taskManager.getDefaultTaskById(999);
+        assertThrows(NotFoundException.class, () -> {
+            taskManager.getDefaultTaskById(999);
+        });
 
         ArrayList<Task> history = taskManager.historyManager.getHistory();
         assertTrue(history.isEmpty());
