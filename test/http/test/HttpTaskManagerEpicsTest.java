@@ -1,4 +1,4 @@
-package httpTaskTest;
+package http.test;
 
 import com.google.gson.Gson;
 import manager.InMemoryTaskManager;

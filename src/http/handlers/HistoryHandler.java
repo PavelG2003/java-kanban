@@ -1,20 +1,21 @@
-package httpHandlers;
+package http.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import manager.HistoryManager;
 import manager.TaskManager;
 import server.HttpTaskServer;
 import task.Task;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.ArrayList;
 
-public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
+public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
     TaskManager manager;
     Gson gson;
 
-    public PrioritizedHandler(TaskManager manager) {
+    public HistoryHandler(TaskManager manager) {
         this.manager = manager;
         gson = HttpTaskServer.getGson();
     }
@@ -23,14 +24,15 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         if (method.equals("GET")) {
-            handleGetPrioritized(exchange);
+            handleGetHistory(exchange);
         } else {
             sendNotFound(exchange);
         }
     }
 
-    private void handleGetPrioritized(HttpExchange exchange) throws IOException {
-        Set<Task> tasks = manager.getPrioritizedTasks();
+    private void handleGetHistory(HttpExchange exchange) throws IOException {
+        HistoryManager historyManager = manager.getHistoryManager();
+        ArrayList<Task> tasks = historyManager.getHistory();
         String jsonSubtasks = gson.toJson(tasks);
         sendText(exchange, jsonSubtasks);
     }

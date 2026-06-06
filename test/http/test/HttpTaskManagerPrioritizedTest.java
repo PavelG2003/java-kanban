@@ -1,7 +1,6 @@
-package httpTaskTest;
+package http.test;
 
 import com.google.gson.Gson;
-import manager.HistoryManager;
 import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
@@ -18,16 +17,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class HttpTaskManagerHistoryTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class HttpTaskManagerPrioritizedTest {
     TaskManager manager = new InMemoryTaskManager();
     HttpTaskServer httpTaskServer = new HttpTaskServer(manager);
     Gson gson = HttpTaskServer.getGson();
-    public HttpTaskManagerHistoryTest() throws IOException {
+    public HttpTaskManagerPrioritizedTest() throws IOException {
     }
 
     @BeforeEach
@@ -44,7 +43,7 @@ public class HttpTaskManagerHistoryTest {
     }
 
     @Test
-    public void testGetHistory() throws IOException, InterruptedException {
+    public void testGetPrioritized() throws IOException, InterruptedException {
         Task task = new Task(
                 "Test 1",
                 "Testing task 1",
@@ -67,18 +66,13 @@ public class HttpTaskManagerHistoryTest {
                 LocalDateTime.of(2026, 3, 6, 12, 0),
                 100
         );
-
-        manager.createSubTask(subTask1);
         manager.createDefaultTask(task);
         manager.createDefaultTask(task2);
-        manager.getDefaultTaskById(task.getTaskId());
-        manager.getDefaultTaskById(task2.getTaskId());
-        manager.getEpicTaskById(epicId);
-        manager.getSubTaskById(subTask1.getTaskId());
-
+        manager.createEpicTask(epic);
+        manager.createSubTask(subTask1);
 
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/history");
+        URI url = URI.create("http://localhost:8080/prioritized");
         HttpRequest request = HttpRequest
                 .newBuilder()
                 .uri(url)
@@ -86,12 +80,10 @@ public class HttpTaskManagerHistoryTest {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
-        Task[] historyTasks = gson.fromJson(response.body(), Task[].class);
-        HistoryManager historyManager = manager.getHistoryManager();
-        List<Task> tasks = historyManager.getHistory();
+        Task[] tasks = gson.fromJson(response.body(), Task[].class);
+        Set<Task> prioritizedTasks = manager.getPrioritizedTasks();
 
         assertNotNull(tasks);
-        assertEquals(historyManager.getHistory().size(), historyTasks.length);
-        assertEquals("Test 2", historyTasks[1].getTitle());
+        assertEquals(prioritizedTasks.size(), tasks.length);
     }
 }
