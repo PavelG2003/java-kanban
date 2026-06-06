@@ -156,8 +156,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             return EpicHandler.Endpoint.DELETE_EPIC;
         } else if ((pathParts.length == 4) && requestMethod.equals("GET")) {
             return EpicHandler.Endpoint.GET_EPIC_SUBTASKS;
-        }
-        else {
+        } else {
             return EpicHandler.Endpoint.UNKNOWN;
         }
     }
