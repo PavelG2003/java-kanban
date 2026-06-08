@@ -1,14 +1,16 @@
 import org.junit.jupiter.api.Test;
 import task.Task;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskTest {
 
     @Test
     void tasksAreEqualIfIdsAreEqual() {
-        Task task1 = new Task("Title 1", "Description 1");
-        Task task2 = new Task("Title 2", "Description 2");
+        Task task1 = new Task("Title 1", "Description 1", LocalDateTime.now(), 100);
+        Task task2 = new Task("Title 2", "Description 2", LocalDateTime.now(), 96);
 
         task1.setTaskId(1);
         task2.setTaskId(1);
@@ -20,8 +22,8 @@ class TaskTest {
 
     @Test
     void tasksAreNotEqualIfIdsAreDifferent() {
-        Task task1 = new Task("Title", "Description");
-        Task task2 = new Task("Title", "Description");
+        Task task1 = new Task("Title", "Description", LocalDateTime.now(), 100);
+        Task task2 = new Task("Title", "Description", LocalDateTime.now(), 96);
 
         task1.setTaskId(1);
         task2.setTaskId(2);
