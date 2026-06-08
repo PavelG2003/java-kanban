@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
+    private static final int COLLECTION_PART_LENGTH = 2;
+    private static final int ITEM_PART_LENGTH = 3;
     TaskManager manager;
     Gson gson;
 
@@ -124,11 +126,11 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
     private SubtaskHandler.Endpoint getEndpoint(String requestPath, String requestMethod) {
         String[] pathParts = requestPath.split("/");
 
-        if ((pathParts.length == 2) && requestMethod.equals("GET")) {
+        if ((pathParts.length == COLLECTION_PART_LENGTH) && requestMethod.equals("GET")) {
             return SubtaskHandler.Endpoint.GET_SUBTASKS;
         } else if (requestMethod.equals("POST")) {
             return SubtaskHandler.Endpoint.СREATE_SUBTASK;
-        } else if ((pathParts.length == 3) && requestMethod.equals("GET")) {
+        } else if ((pathParts.length == ITEM_PART_LENGTH) && requestMethod.equals("GET")) {
             return SubtaskHandler.Endpoint.GET_SUBTASK;
         } else if (requestMethod.equals("DELETE")) {
             return SubtaskHandler.Endpoint.DELETE_SUBTASK;

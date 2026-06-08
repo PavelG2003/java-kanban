@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class EpicHandler extends BaseHttpHandler implements HttpHandler {
+    private static final int EPICS_COLLECTION_PART_LENGTH = 2;
+    private static final int ITEM_PART_LENGTH = 3;
+    private static final int SUBTASKS_COLLECTION_PART_LENGTH = 4;
     TaskManager manager;
     Gson gson;
 
@@ -146,15 +149,15 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
     private EpicHandler.Endpoint getEndpoint(String requestPath, String requestMethod) {
         String[] pathParts = requestPath.split("/");
 
-        if ((pathParts.length == 2) && requestMethod.equals("GET")) {
+        if ((pathParts.length == EPICS_COLLECTION_PART_LENGTH) && requestMethod.equals("GET")) {
             return EpicHandler.Endpoint.GET_EPICS;
         } else if (requestMethod.equals("POST")) {
             return EpicHandler.Endpoint.СREATE_EPIC;
-        } else if ((pathParts.length == 3) && requestMethod.equals("GET")) {
+        } else if ((pathParts.length == ITEM_PART_LENGTH) && requestMethod.equals("GET")) {
             return EpicHandler.Endpoint.GET_EPIC;
         } else if (requestMethod.equals("DELETE")) {
             return EpicHandler.Endpoint.DELETE_EPIC;
-        } else if ((pathParts.length == 4) && requestMethod.equals("GET")) {
+        } else if ((pathParts.length == SUBTASKS_COLLECTION_PART_LENGTH) && requestMethod.equals("GET")) {
             return EpicHandler.Endpoint.GET_EPIC_SUBTASKS;
         } else {
             return EpicHandler.Endpoint.UNKNOWN;
